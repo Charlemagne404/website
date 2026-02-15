@@ -1,27 +1,26 @@
-# tullingedk/website
+# TGDK Website
 
-Source code to [tgdk.se](https://tgdk.se).
+Trimmed standalone website built in plain HTML, CSS, and JavaScript.
 
-## Working with the project locally
+## Run Locally (No Hugo)
 
-Before you start, make sure you have Hugo _extended version_ installed. Hugo can be installed via [Homebrew](https://brew.sh/index_sv) on macOS, [Linuxbrew](https://docs.brew.sh/Homebrew-on-Linux) on Linux or just as an executable on Windows. See the project [GitHub releases](https://github.com/gohugoio/hugo/releases) or the [Hugo website](https://gohugo.io).
-
-Clone the project to your computer.
-
-Download the theme as a git submodule.
+From the repo root, start a static file server:
 
 ```bash
-git submodule update --init
+python3 -m http.server 5500
 ```
 
-You can now serve the page locally, on your computer.
+Then open:
 
-```bash
-hugo serve
+```text
+http://localhost:5500
 ```
 
-View the page [http://localhost:1313](http://localhost:1313) in your browser.
+## Main Files
 
-## Author
-
-Initially written by [Vilhelm Prytz](https://github.com/vilhelmprytz).
+- `index.html` - page structure and content
+- `styles.css` - styling and responsive layout
+- `script.js` - menu state, search filter, active anchor state
+- `documents/` - linked PDF archive files
+- `fonts/` - local webfonts used by the CSS
+- `svg/` - icons used in navigation and footer

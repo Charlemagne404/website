@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Tullinge gymnasium datorklubb" />
+  <meta name="theme-color" content="#ffffff" />
+  <title>Introduktion | Tullinge gymnasium datorklubb</title>
+
+  <link rel="icon" href="./favicon.png" type="image/x-icon" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="mobile-header" aria-label="Mobil navigering">
+    <button
+      id="openMenuButton"
+      class="icon-button"
+      type="button"
+      aria-controls="sidebar"
+      aria-expanded="false"
+      aria-label="Öppna meny">
+      <img src="./svg/menu.svg" alt="" />
+      <span>Meny</span>
+    </button>
+
+    <strong class="mobile-title">Introduktion</strong>
+
+    <button
+      id="openTocButton"
+      class="icon-button"
+      type="button"
+      aria-controls="tocPanel"
+      aria-expanded="false"
+      aria-label="Öppna innehållsförteckning">
+      <img src="./svg/toc.svg" alt="" />
+      <span>Innehåll</span>
+    </button>
+  </header>
+
+  <div id="mobileBackdrop" class="mobile-backdrop" hidden></div>
+
+  <main class="layout">
+    <aside id="sidebar" class="sidebar" aria-label="Huvudmeny">
+      <div class="sidebar-inner">
+        <h1 class="site-title">
+          <a href="./">Tullinge gymnasium datorklubb</a>
+        </h1>
+
+        <div class="menu-search">
+          <label class="sr-only" for="menuSearchInput">Sök i menyn</label>
+          <input
+            id="menuSearchInput"
+            type="text"
+            placeholder="Sök"
+            maxlength="64"
+            autocomplete="off"
+          />
+        </div>
+
+        <nav class="menu-nav" aria-label="Sektioner">
+          <ul>
+            <li class="menu-group">
+              <span>Datorklubben</span>
+              <ul>
+                <li><a data-search-item href="#lan">LAN</a></li>
+                <li><a data-search-item href="#programmering">Programmering</a></li>
+                <li><a data-search-item href="#minecraft">Minecraft</a></li>
+              </ul>
+            </li>
+
+            <li class="menu-group">
+              <span>Föreningen</span>
+              <ul>
+                <li><a data-search-item href="#bli-medlem">Bli medlem</a></li>
+                <li><a data-search-item href="#styrelsen">Styrelsen</a></li>
+                <li><a data-search-item href="#dokument">Dokument</a></li>
+                <li><a data-search-item href="#kontakta-oss">Kontakta oss</a></li>
+              </ul>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </aside>
+
+    <article class="content markdown" id="mainContent">
+      <h1 id="valkommen-till-tullinge-gymnasium-datorklubb">Välkommen till Tullinge gymnasium datorklubb</h1>
+
+      <p>Gemenskap för datorintresserade på Tullinge gymnasium.</p>
+
+      <p>
+        På Tullinge gymnasium har det sedan starten 2001 funnits en grupp för brädspels- och
+        datorspelsintresserade, Tullinge gymnasium datorklubb. Föreningens syfte är bland annat
+        att anordna LAN, men även andra aktiviteter för elever intresserade av datorspel och brädspel.
+      </p>
+
+      <p>
+        Datorklubben vill även annordna andra programmeringsrelaterade evenmang,
+        som t.ex. hackathon, programmeringsutmaningar och liknande!
+      </p>
+
+      <p>
+        <a href="https://www.youtube.com/watch?v=gBYnk438_zg&amp;feature=youtu.be" target="_blank" rel="noopener">
+          True Purpose
+        </a>
+      </p>
+
+      <h2 id="datorklubben">Datorklubben</h2>
+
+      <h3 id="lan">LAN</h3>
+      <p>Datorklubben anordnar ett LAN en gång per termin.</p>
+
+      <h3 id="programmering">Programmering</h3>
+      <p>
+        <a href="https://github.com/tullingedk" target="_blank" rel="noopener">
+          Datorklubbens GitHub-organisation
+        </a>.
+      </p>
+
+      <h4 id="egenutvecklade-system">Egenutvecklade system</h4>
+      <ul>
+        <li>
+          <a href="https://github.com/tullingedk/booking" target="_blank" rel="noopener">tullingedk/booking</a>
+          - Bokningssida för LAN. Körs på
+          <a href="https://booking.tgdk.se" target="_blank" rel="noopener">https://booking.tgdk.se</a>
+        </li>
+        <li>
+          <a href="https://github.com/tullingedk/member" target="_blank" rel="noopener">tullingedk/member</a>
+          - Medlemsregister. Körs på
+          <a href="https://member.tgdk.se" target="_blank" rel="noopener">https://member.tgdk.se</a>
+        </li>
+      </ul>
+
+      <h3 id="minecraft">Minecraft</h3>
+      <p>
+        Datorklubben har en egen Minecraftserver för dess medlemmar. För att gå med,
+        bli först medlem och fyll sedan i formuläret för att bli insläppt på servern.
+      </p>
+
+      <p>
+        <a class="button-link" href="#bli-medlem">Först: Bli medlem</a>
+        <a class="button-link" href="https://forms.gle/i7h1FiDFfL5TuunL8" target="_blank" rel="noopener">
+          Sen: Fyll i detta formulär
+        </a>
+      </p>
+
+      <p>När du fyllt i formuläret, kontakta någon i styrelsen som då whitelistar dig.</p>
+      <p>Inga fusk är tillåtna. Endast OptiFine är tillåtet. Använd sunt förnuft, förstör inte för andra spelare.</p>
+
+      <p>IPn till servern:</p>
+      <pre><code>minecraft.tgdk.se</code></pre>
+
+      <h4 id="videor">Videor</h4>
+      <iframe
+        src="https://www.youtube.com/embed/SLn-kBjlg70"
+        title="Valborgsfirande med DK 2021"
+        loading="lazy"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen>
+      </iframe>
+
+      <h2 id="foreningen">Föreningen</h2>
+
+      <h3 id="bli-medlem">Bli medlem</h3>
+      <p>
+        Använd <a href="https://member.tgdk.se/" target="_blank" rel="noopener">denna sida</a> för att bli medlem i Datorklubben!
+        Ett medlemskap kostar ingenting men hjälper oss att söka bidrag och växa! Formuläret kräver inloggning.
+      </p>
+      <p>
+        <a class="button-link" href="https://member.tgdk.se" target="_blank" rel="noopener">Bli medlem</a>
+      </p>
+
+      <h3 id="styrelsen">Styrelsen</h3>
+      <p>Styrelsen för verksamhetsåret 2020-07-01 till 2021-06-30.</p>
+      <ul>
+        <li>Fredrik Berzins, TE18 - <em>Ordförande</em></li>
+        <li>Tim Torndal, TE19 - <em>Vice ordförande</em></li>
+        <li>Vilhelm Prytz, TE18 - <em>Ordinarie ledamot, ekonomiansvarig</em></li>
+        <li>Teo Akenine, NA19B - <em>Ordinarie ledamot</em></li>
+        <li>David Törnqvist, TE19 - <em>Ordinarie ledamot</em></li>
+        <li>Walter Thorslund, TE19 - <em>Ordinarie ledamot</em></li>
+        <li>Jonathan Lönnqvist, TE19 - <em>Ordinarie ledamot</em></li>
+        <li>Christoffer Santala Andersson - <em>Suppleant till ledamot</em></li>
+      </ul>
+
+      <h3 id="dokument">Dokument</h3>
+      <p>Här finner du ett akriv på dokument.</p>
+      <p>
+        <a href="./documents/2020/stadgar-2020-04-24.pdf" target="_blank" rel="noopener">
+          Stadgar som gäller just nu, version 2020-04-24
+        </a>.
+      </p>
+
+      <h4 id="dokument-2021">2021</h4>
+      <ul>
+        <li>
+          22 september: Årsmöte 2021
+          <ul>
+            <li><a href="./documents/2021/arsmote-2021.pdf" target="_blank" rel="noopener">Årsmötesprotokoll</a></li>
+            <li>Konstituerande styrelsemöte (publiceras efter årsmötet)</li>
+            <li><a href="./documents/2021/Balansrapport%202020-07-01-2021-06-30.pdf" target="_blank" rel="noopener">Balansrapport</a></li>
+            <li><a href="./documents/2021/Resultatrapport%202020-07-01-2021-06-30.pdf" target="_blank" rel="noopener">Resultatrapport</a></li>
+          </ul>
+        </li>
+      </ul>
+
+      <h4 id="dokument-2020">2020</h4>
+      <ul>
+        <li>
+          23 september: Årsmöte 2020
+          <ul>
+            <li><a href="./documents/2020/arsmote-2020.pdf" target="_blank" rel="noopener">Årsmötesprotokoll</a></li>
+            <li><a href="./documents/2020/konstituerande-styrelsemote-2020-09-23.pdf" target="_blank" rel="noopener">Konstituerande styrelsemöte</a></li>
+            <li><a href="./documents/2020/Balansrapport%202020-05-04-2020-06-30.pdf" target="_blank" rel="noopener">Balansrapport</a></li>
+            <li><a href="./documents/2020/Resultatrapport%202020-05-04-2020-06-30.pdf" target="_blank" rel="noopener">Resultatrapport</a></li>
+          </ul>
+        </li>
+        <li>
+          24 april: Föreningens bildande
+          <ul>
+            <li><a href="./documents/2020/stadgar-2020-04-24.pdf" target="_blank" rel="noopener">Stadgarna antogs</a></li>
+            <li><a href="./documents/2020/konstituerande-styrelsemote-2020-04-24.pdf" target="_blank" rel="noopener">Konstituerande styrelsemöte</a></li>
+          </ul>
+        </li>
+      </ul>
+
+      <h3 id="kontakta-oss">Kontakta oss</h3>
+      <p>Du når enklast styrelsen på datorklubbens officiella Discordserver.</p>
+
+      <p>
+        Vid frågor angående webbsidan, kontakta Vilhelm Prytz på
+        <a href="mailto:vilhelm@prytznet.se">vilhelm@prytznet.se</a>.
+      </p>
+
+      <p>
+        TULLINGE GYMNASIUM DATORKLUBB<br />
+        c/o TULLINGE GYMNASIUM<br />
+        ALFRED NOBELS ALLÉ 206<br />
+        146 80 Tullinge
+      </p>
+
+      <p>
+        Organisationsnummer: 802530-4208<br />
+        <a href="mailto:info@tgdk.se">info@tgdk.se</a>
+      </p>
+
+      <footer class="page-footer">
+        <div class="footer-row">
+          <a class="footer-link" href="https://github.com/tullingedk/website/commit/ae86ab5" target="_blank" rel="noopener">
+            <img src="./svg/calendar.svg" alt="" />
+            <span>26 mars, 2022</span>
+          </a>
+
+          <a class="footer-link" href="https://github.com/tullingedk/website/edit/master/index.html" target="_blank" rel="noopener">
+            <img src="./svg/edit.svg" alt="" />
+            <span>Redigera denna sida</span>
+          </a>
+        </div>
+
+        <p class="footer-meta">
+          Senast modifierad av Vilhelm Prytz
+          (<a href="https://github.com/tullingedk/website/commit/ae86ab5" target="_blank" rel="noopener">ae86ab5</a>)
+        </p>
+        <p class="footer-meta"><i>Lägg till årsmötesprotokoll 2021</i></p>
+      </footer>
+    </article>
+
+    <aside id="tocPanel" class="toc" aria-label="Innehållsförteckning">
+      <div class="toc-inner">
+        <nav class="toc-nav" aria-label="Innehåll på sidan">
+          <ul>
+            <li>
+              <a href="#datorklubben">Datorklubben</a>
+              <ul>
+                <li><a href="#lan">LAN</a></li>
+                <li>
+                  <a href="#programmering">Programmering</a>
+                  <ul>
+                    <li><a href="#egenutvecklade-system">Egenutvecklade system</a></li>
+                  </ul>
+                </li>
+                <li>
+                  <a href="#minecraft">Minecraft</a>
+                  <ul>
+                    <li><a href="#videor">Videor</a></li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="#foreningen">Föreningen</a>
+              <ul>
+                <li><a href="#bli-medlem">Bli medlem</a></li>
+                <li><a href="#styrelsen">Styrelsen</a></li>
+                <li>
+                  <a href="#dokument">Dokument</a>
+                  <ul>
+                    <li><a href="#dokument-2021">2021</a></li>
+                    <li><a href="#dokument-2020">2020</a></li>
+                  </ul>
+                </li>
+                <li><a href="#kontakta-oss">Kontakta oss</a></li>
+              </ul>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </aside>
+  </main>
+
+  <script src="./script.js"></script>
+</body>
+</html>
