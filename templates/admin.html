@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin | Tullinge gymnasium datorklubb</title>
+  <link rel="icon" href="{{ url_for('favicon') }}" type="image/x-icon" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}" />
+</head>
+<body class="admin-shell">
+  <header class="admin-topbar">
+    <div>
+      <p class="admin-topbar-kicker">Webbplatsadmin</p>
+      <h1>Tullinge gymnasium datorklubb</h1>
+      <p class="admin-topbar-subtitle">Uppdatera innehållet utan att ändra kod.</p>
+    </div>
+
+    <div class="admin-topbar-actions">
+      <a class="admin-secondary-button" href="{{ public_url }}" target="_blank" rel="noopener">Visa webbplatsen</a>
+      <form action="{{ url_for('admin_logout') }}" method="post">
+        <button class="admin-secondary-button" type="submit">Logga ut</button>
+      </form>
+      <button id="saveContentButton" class="admin-primary-button" type="button">Spara ändringar</button>
+    </div>
+  </header>
+
+  <main class="admin-layout">
+    <aside class="admin-summary">
+      <section class="admin-panel">
+        <h2>Inloggad som</h2>
+        <div class="admin-user-card">
+          {% if admin.picture %}
+            <img src="{{ admin.picture }}" alt="" />
+          {% else %}
+            <div class="admin-user-fallback">{{ admin.name[:1] }}</div>
+          {% endif %}
+          <div>
+            <strong>{{ admin.name }}</strong>
+            <span>{{ admin.email }}</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="admin-panel">
+        <h2>Status</h2>
+        <p id="saveStatus">Laddar innehåll...</p>
+        <p class="admin-muted">Ändringar blir synliga direkt när du sparar.</p>
+      </section>
+
+      <section class="admin-panel">
+        <h2>Återställning</h2>
+        <p class="admin-muted">Varje sparning skapar en återställningsbar version automatiskt.</p>
+        <div id="historyList" class="admin-stack"></div>
+      </section>
+
+      <section class="admin-panel">
+        <h2>Tips</h2>
+        <ul class="admin-plain-list">
+          <li>Ändra texten i fälten och tryck sedan på <strong>Spara ändringar</strong>.</li>
+          <li>För dokument kan du antingen klistra in en länk eller ladda upp en PDF direkt.</li>
+          <li>Om något blir fel kan du återställa en tidigare version utan att kontakta utvecklaren.</li>
+          <li>Admin-konton styr vilka Google-konton som får redigera webbplatsen.</li>
+        </ul>
+      </section>
+    </aside>
+
+    <section class="admin-editor">
+      <form id="adminContentForm" class="admin-form-grid">
+        <details class="admin-section" open>
+          <summary>Webbplats</summary>
+          <div class="admin-section-body">
+            <div class="admin-field-grid">
+              <label>
+                <span>Webbplatsnamn</span>
+                <input id="siteName" type="text" />
+              </label>
+              <label>
+                <span>Sidrubrik</span>
+                <input id="pageTitle" type="text" />
+              </label>
+              <label>
+                <span>Mobil standardtitel</span>
+                <input id="mobileDefaultTitle" type="text" />
+              </label>
+              <label>
+                <span>Meta-beskrivning</span>
+                <input id="metaDescription" type="text" />
+              </label>
+              <label>
+                <span>Färgtema</span>
+                <input id="themeColor" type="text" />
+              </label>
+              <label>
+                <span>Ögonbryn ovanför huvudrubriken</span>
+                <input id="siteEyebrow" type="text" />
+              </label>
+            </div>
+          </div>
+        </details>
+
+        <details class="admin-section">
+          <summary>Sidopanel och meny</summary>
+          <div class="admin-section-body">
+            <div class="admin-subsection">
+              <h3>Startkort</h3>
+              <div class="admin-field-grid">
+                <label><span>Etikett</span><input id="sidebarStartKicker" type="text" /></label>
+                <label><span>Rubrik</span><input id="sidebarStartTitle" type="text" /></label>
+                <label class="admin-field-span-2"><span>Text</span><textarea id="sidebarStartText" rows="3"></textarea></label>
+                <label><span>Knapptext</span><input id="sidebarStartButtonLabel" type="text" /></label>
+                <label><span>Knapp-länk</span><input id="sidebarStartButtonHref" type="text" /></label>
+              </div>
+            </div>
+
+            <div class="admin-subsection">
+              <h3>Snabbfakta</h3>
+              <div class="admin-field-grid">
+                <label><span>Etikett</span><input id="sidebarFactsKicker" type="text" /></label>
+                <label><span>Rubrik</span><input id="sidebarFactsTitle" type="text" /></label>
+              </div>
+              <div id="sidebarFactsList" class="admin-stack"></div>
+              <button data-add-list-item="sidebarFactsList" class="admin-secondary-button" type="button">Lägg till snabbfakta</button>
+            </div>
+
+            <div class="admin-subsection">
+              <h3>Navigering</h3>
+              <div id="navigationGroups" class="admin-stack"></div>
+              <button id="addNavigationGroupButton" class="admin-secondary-button" type="button">Lägg till menygrupp</button>
+            </div>
+          </div>
+        </details>
+
+        <details class="admin-section">
+          <summary>Startsida</summary>
+          <div class="admin-section-body">
+            <div class="admin-subsection">
+              <h3>Hero</h3>
+              <div class="admin-field-grid">
+                <label><span>Huvudrubrik</span><input id="heroTitle" type="text" /></label>
+                <label class="admin-field-span-2"><span>Ingress</span><textarea id="heroLead" rows="3"></textarea></label>
+              </div>
+              <div id="heroActions" class="admin-stack"></div>
+              <button id="addHeroActionButton" class="admin-secondary-button" type="button">Lägg till hero-knapp</button>
+
+              <div class="admin-subsection">
+                <h4>Hero-snabbfakta</h4>
+                <div id="heroHighlights" class="admin-stack"></div>
+                <button data-add-list-item="heroHighlights" class="admin-secondary-button" type="button">Lägg till punkt</button>
+              </div>
+            </div>
+
+            <div class="admin-subsection">
+              <h3>Introduktion</h3>
+              <div id="introParagraphs" class="admin-stack"></div>
+              <button data-add-list-item="introParagraphs" class="admin-secondary-button" type="button">Lägg till stycke</button>
+              <div class="admin-field-grid">
+                <label><span>Extern länktext</span><input id="introLinkLabel" type="text" /></label>
+                <label><span>Extern länk</span><input id="introLinkUrl" type="url" /></label>
+              </div>
+            </div>
+
+            <div class="admin-subsection">
+              <h3>Snabbstartskort</h3>
+              <div class="admin-field-grid">
+                <label><span>Rubrik</span><input id="quickLinksTitle" type="text" /></label>
+              </div>
+              <div id="quickLinkCards" class="admin-stack"></div>
+              <button id="addQuickLinkCardButton" class="admin-secondary-button" type="button">Lägg till snabbstartskort</button>
+            </div>
+          </div>
+        </details>
+
+        <details class="admin-section">
+          <summary>Datorklubben</summary>
+          <div class="admin-section-body">
+            <div class="admin-field-grid">
+              <label><span>Sektionsrubrik</span><input id="clubTitle" type="text" /></label>
+              <label class="admin-field-span-2"><span>Sektionsbeskrivning</span><textarea id="clubLead" rows="3"></textarea></label>
+            </div>
+
+            <div class="admin-subsection">
+              <h3>Översiktskort</h3>
+              <div id="clubFeatureCards" class="admin-stack"></div>
+              <button id="addClubFeatureCardButton" class="admin-secondary-button" type="button">Lägg till kort</button>
+            </div>
+
+            <div class="admin-subsection">
+              <h3>LAN</h3>
+              <label><span>Rubrik</span><input id="clubLanTitle" type="text" /></label>
+              <div id="clubLanParagraphs" class="admin-stack"></div>
+              <button data-add-list-item="clubLanParagraphs" class="admin-secondary-button" type="button">Lägg till stycke</button>
+            </div>
+
+            <div class="admin-subsection">
+              <h3>Programmering</h3>
+              <div class="admin-field-grid">
+                <label><span>Rubrik</span><input id="programmingTitle" type="text" /></label>
+                <label><span>Organisationslänk text</span><input id="programmingOrgLabel" type="text" /></label>
+                <label><span>Organisationslänk URL</span><input id="programmingOrgUrl" type="url" /></label>
+                <label><span>Rubrik för egna system</span><input id="programmingSystemsTitle" type="text" /></label>
+              </div>
+              <div id="programmingSystems" class="admin-stack"></div>
+              <button id="addProgrammingSystemButton" class="admin-secondary-button" type="button">Lägg till system</button>
+            </div>
+
+            <div class="admin-subsection">
+              <h3>Minecraft</h3>
+              <div class="admin-field-grid">
+                <label><span>Rubrik</span><input id="minecraftTitle" type="text" /></label>
+                <label><span>Rubrik för serveradress</span><input id="minecraftServerLabel" type="text" /></label>
+                <label><span>Text före serveradress</span><input id="minecraftServerIntro" type="text" /></label>
+                <label><span>Serveradress</span><input id="minecraftServerAddress" type="text" /></label>
+                <label><span>Rubrik för videor</span><input id="minecraftVideosTitle" type="text" /></label>
+              </div>
+              <div id="minecraftParagraphs" class="admin-stack"></div>
+              <button data-add-list-item="minecraftParagraphs" class="admin-secondary-button" type="button">Lägg till stycke</button>
+
+              <div class="admin-subsection">
+                <h4>Knappar</h4>
+                <div id="minecraftActions" class="admin-stack"></div>
+                <button id="addMinecraftActionButton" class="admin-secondary-button" type="button">Lägg till knapp</button>
+              </div>
+
+              <div class="admin-subsection">
+                <h4>Videor</h4>
+                <div id="minecraftVideos" class="admin-stack"></div>
+                <button id="addMinecraftVideoButton" class="admin-secondary-button" type="button">Lägg till video</button>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="admin-section">
+          <summary>Föreningen</summary>
+          <div class="admin-section-body">
+            <div class="admin-field-grid">
+              <label><span>Sektionsrubrik</span><input id="associationTitle" type="text" /></label>
+              <label class="admin-field-span-2"><span>Sektionsbeskrivning</span><textarea id="associationLead" rows="3"></textarea></label>
+            </div>
+
+            <div class="admin-subsection">
+              <h3>Översiktskort</h3>
+              <div id="associationFeatureCards" class="admin-stack"></div>
+              <button id="addAssociationFeatureCardButton" class="admin-secondary-button" type="button">Lägg till kort</button>
+            </div>
+
+            <div class="admin-subsection">
+              <h3>Medlemskap</h3>
+              <div class="admin-field-grid">
+                <label><span>Rubrik</span><input id="membershipTitle" type="text" /></label>
+                <label><span>Text före länken</span><input id="membershipLinkIntro" type="text" /></label>
+                <label><span>Länktext</span><input id="membershipLinkLabel" type="text" /></label>
+                <label><span>Länk URL</span><input id="membershipLinkUrl" type="url" /></label>
+                <label class="admin-field-span-2"><span>Text efter länken</span><textarea id="membershipLinkOutro" rows="3"></textarea></label>
+                <label><span>Knapptext</span><input id="membershipButtonLabel" type="text" /></label>
+                <label><span>Knapp URL</span><input id="membershipButtonUrl" type="url" /></label>
+              </div>
+            </div>
+
+            <div class="admin-subsection">
+              <h3>Styrelsen</h3>
+              <div class="admin-field-grid">
+                <label><span>Rubrik</span><input id="boardTitle" type="text" /></label>
+                <label class="admin-field-span-2"><span>Introduktion</span><textarea id="boardIntro" rows="2"></textarea></label>
+              </div>
+              <div id="boardMembers" class="admin-stack"></div>
+              <button id="addBoardMemberButton" class="admin-secondary-button" type="button">Lägg till styrelsemedlem</button>
+            </div>
+
+            <div class="admin-subsection">
+              <h3>Dokument</h3>
+              <div class="admin-field-grid">
+                <label><span>Rubrik</span><input id="documentsTitle" type="text" /></label>
+                <label class="admin-field-span-2"><span>Introduktion</span><textarea id="documentsIntro" rows="2"></textarea></label>
+                <label><span>Aktuellt dokument, text</span><input id="currentDocumentLabel" type="text" /></label>
+                <label><span>Aktuellt dokument, länk</span><input id="currentDocumentUrl" type="text" /></label>
+              </div>
+              <div id="documentYears" class="admin-stack"></div>
+              <button id="addDocumentYearButton" class="admin-secondary-button" type="button">Lägg till år</button>
+            </div>
+
+            <div class="admin-subsection">
+              <h3>Kontakt</h3>
+              <div class="admin-field-grid">
+                <label><span>Rubrik</span><input id="contactTitle" type="text" /></label>
+                <label class="admin-field-span-2"><span>Discord-text</span><textarea id="contactDiscordText" rows="2"></textarea></label>
+                <label class="admin-field-span-2"><span>Text om webbplatskontakt</span><textarea id="contactWebsiteText" rows="2"></textarea></label>
+                <label><span>Organisationsnummer</span><input id="contactOrganizationNumber" type="text" /></label>
+                <label><span>E-postadress</span><input id="contactEmail" type="email" /></label>
+              </div>
+              <div id="contactAddressLines" class="admin-stack"></div>
+              <button data-add-list-item="contactAddressLines" class="admin-secondary-button" type="button">Lägg till adressrad</button>
+            </div>
+          </div>
+        </details>
+
+        <details class="admin-section">
+          <summary>Sidfot och admin</summary>
+          <div class="admin-section-body">
+            <div class="admin-subsection">
+              <h3>Sidfot</h3>
+              <div class="admin-field-grid">
+                <label><span>Text för adminlänk</span><input id="footerEditLinkLabel" type="text" /></label>
+                <label><span>Text före kreditlänken</span><input id="footerCreditLabel" type="text" /></label>
+                <label><span>Kreditnamn</span><input id="footerCreditName" type="text" /></label>
+                <label><span>Kreditlänk</span><input id="footerCreditUrl" type="url" /></label>
+                <label class="admin-field-span-2"><span>Notis längst ned</span><textarea id="footerNote" rows="2"></textarea></label>
+              </div>
+            </div>
+
+            <div class="admin-subsection">
+              <h3>Adminkonton</h3>
+              <p class="admin-muted">Dessa Google-konton får öppna adminpanelen.</p>
+              <div class="admin-inline-form">
+                <input id="newAdminEmail" type="email" placeholder="namn@example.com" />
+                <button id="addAdminEmailButton" class="admin-secondary-button" type="button">Lägg till admin</button>
+              </div>
+              <div id="adminEmailList" class="admin-stack"></div>
+            </div>
+          </div>
+        </details>
+      </form>
+    </section>
+  </main>
+
+  <template id="textListItemTemplate">
+    <div class="admin-list-item">
+      <label>
+        <span>Text</span>
+        <textarea rows="2" data-field="value"></textarea>
+      </label>
+      <button class="admin-danger-button" data-action="remove-item" type="button">Ta bort</button>
+    </div>
+  </template>
+
+  <template id="linkItemTemplate">
+    <div class="admin-list-item admin-card-editor">
+      <div class="admin-field-grid">
+        <label><span>Etikett</span><input type="text" data-field="label" /></label>
+        <label><span>Länk</span><input type="text" data-field="href" /></label>
+        <label><span>Primär knapp</span><input type="checkbox" data-field="primary" /></label>
+      </div>
+      <button class="admin-danger-button" data-action="remove-item" type="button">Ta bort</button>
+    </div>
+  </template>
+
+  <template id="cardItemTemplate">
+    <div class="admin-list-item admin-card-editor">
+      <div class="admin-field-grid">
+        <label><span>Etikett</span><input type="text" data-field="kicker" /></label>
+        <label><span>Rubrik</span><input type="text" data-field="title" /></label>
+        <label class="admin-field-span-2"><span>Text</span><textarea rows="2" data-field="text"></textarea></label>
+        <label><span>Länk</span><input type="text" data-field="href" /></label>
+      </div>
+      <button class="admin-danger-button" data-action="remove-item" type="button">Ta bort</button>
+    </div>
+  </template>
+
+  <template id="navigationGroupTemplate">
+    <div class="admin-list-item admin-group-editor">
+      <div class="admin-field-grid">
+        <label><span>Gruppnamn</span><input type="text" data-field="label" /></label>
+      </div>
+      <div class="admin-nested-list" data-role="items"></div>
+      <button class="admin-secondary-button" data-action="add-navigation-item" type="button">Lägg till menyval</button>
+      <button class="admin-danger-button" data-action="remove-item" type="button">Ta bort grupp</button>
+    </div>
+  </template>
+
+  <template id="navigationItemTemplate">
+    <div class="admin-list-item admin-list-item-compact">
+      <div class="admin-field-grid">
+        <label><span>Text</span><input type="text" data-field="label" /></label>
+        <label><span>Ankarlänk</span><input type="text" data-field="href" /></label>
+      </div>
+      <button class="admin-danger-button" data-action="remove-item" type="button">Ta bort</button>
+    </div>
+  </template>
+
+  <template id="systemItemTemplate">
+    <div class="admin-list-item admin-card-editor">
+      <div class="admin-field-grid">
+        <label><span>Repo-namn</span><input type="text" data-field="repo_label" /></label>
+        <label><span>Repo-URL</span><input type="url" data-field="repo_url" /></label>
+        <label class="admin-field-span-2"><span>Beskrivning</span><textarea rows="2" data-field="description"></textarea></label>
+        <label><span>Visad sajtadress</span><input type="text" data-field="site_label" /></label>
+        <label><span>Sajt-URL</span><input type="url" data-field="site_url" /></label>
+      </div>
+      <button class="admin-danger-button" data-action="remove-item" type="button">Ta bort</button>
+    </div>
+  </template>
+
+  <template id="videoItemTemplate">
+    <div class="admin-list-item admin-card-editor">
+      <div class="admin-field-grid">
+        <label><span>Videotitel</span><input type="text" data-field="title" /></label>
+        <label><span>Inbäddnings-URL</span><input type="url" data-field="embed_url" /></label>
+      </div>
+      <button class="admin-danger-button" data-action="remove-item" type="button">Ta bort</button>
+    </div>
+  </template>
+
+  <template id="boardMemberTemplate">
+    <div class="admin-list-item admin-card-editor">
+      <div class="admin-field-grid">
+        <label><span>Namn</span><input type="text" data-field="name" /></label>
+        <label><span>Klass/övrigt</span><input type="text" data-field="details" /></label>
+        <label class="admin-field-span-2"><span>Roll</span><input type="text" data-field="role" /></label>
+      </div>
+      <button class="admin-danger-button" data-action="remove-item" type="button">Ta bort</button>
+    </div>
+  </template>
+
+  <template id="documentYearTemplate">
+    <div class="admin-list-item admin-group-editor">
+      <div class="admin-field-grid">
+        <label><span>År</span><input type="text" data-field="year" /></label>
+      </div>
+      <div class="admin-nested-list" data-role="events"></div>
+      <button class="admin-secondary-button" data-action="add-document-event" type="button">Lägg till händelse</button>
+      <button class="admin-danger-button" data-action="remove-item" type="button">Ta bort år</button>
+    </div>
+  </template>
+
+  <template id="documentEventTemplate">
+    <div class="admin-list-item admin-group-editor admin-group-editor-nested">
+      <div class="admin-field-grid">
+        <label><span>Datumtext</span><input type="text" data-field="date_label" /></label>
+        <label><span>Händelserubrik</span><input type="text" data-field="title" /></label>
+      </div>
+      <div class="admin-nested-list" data-role="items"></div>
+      <button class="admin-secondary-button" data-action="add-document-entry" type="button">Lägg till dokument</button>
+      <button class="admin-danger-button" data-action="remove-item" type="button">Ta bort händelse</button>
+    </div>
+  </template>
+
+  <template id="documentEntryTemplate">
+    <div class="admin-list-item admin-card-editor admin-group-editor-nested">
+      <div class="admin-field-grid">
+        <label><span>Visningstext</span><input type="text" data-field="label" /></label>
+        <label><span>Länk</span><input type="text" data-field="url" /></label>
+        <label class="admin-field-span-2">
+          <span>Ladda upp PDF för denna post</span>
+          <input type="file" accept="application/pdf" data-field="upload" />
+        </label>
+      </div>
+      <button class="admin-danger-button" data-action="remove-item" type="button">Ta bort</button>
+    </div>
+  </template>
+
+  <template id="adminEmailTemplate">
+    <div class="admin-list-item admin-list-item-compact">
+      <strong data-field="email"></strong>
+      <button class="admin-danger-button" data-action="remove-admin" type="button">Ta bort</button>
+    </div>
+  </template>
+
+  <template id="historyItemTemplate">
+    <div class="admin-list-item">
+      <div class="admin-history-copy">
+        <strong data-field="title"></strong>
+        <span data-field="subtitle"></span>
+      </div>
+      <button class="admin-secondary-button" data-action="restore-history" type="button">Återställ</button>
+    </div>
+  </template>
+
+  <script>
+    window.adminAppConfig = {
+      contentUrl: {{ url_for('admin_content') | tojson }},
+      saveUrl: {{ url_for('update_content') | tojson }},
+      adminsUrl: {{ url_for('list_admins') | tojson }},
+      uploadUrl: {{ url_for('upload_document') | tojson }},
+      historyUrl: {{ url_for('content_history') | tojson }},
+      restoreHistoryUrl: {{ url_for('restore_content_history') | tojson }}
+    };
+  </script>
+  <script src="{{ url_for('static', filename='admin.js') }}"></script>
+</body>
+</html>

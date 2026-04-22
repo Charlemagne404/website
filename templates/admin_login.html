@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin | Tullinge gymnasium datorklubb</title>
+  <link rel="icon" href="{{ url_for('favicon') }}" type="image/x-icon" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}" />
+</head>
+<body class="admin-shell admin-login-shell">
+  <main class="admin-login-card">
+    <img class="admin-login-logo" src="{{ url_for('favicon') }}" alt="Tullinge gymnasium datorklubb logotyp" />
+    <p class="admin-login-kicker">Admin</p>
+    <h1>Logga in för att redigera webbplatsen</h1>
+    <p>
+      Endast godkända Google-konton kan öppna adminpanelen och uppdatera innehållet.
+      Du behöver inte kunna HTML eller kod för att göra ändringar.
+    </p>
+
+    {% if hosted_domain %}
+      <p class="admin-login-hint">Inloggning är begränsad till Google-domänen <strong>{{ hosted_domain }}</strong>.</p>
+    {% endif %}
+
+    {% if google_client_id %}
+      <div id="googleLoginButton" class="google-login-button"></div>
+    {% else %}
+      <p class="admin-login-error">
+        Google-inloggning är inte konfigurerad ännu. Sätt <code>GOOGLE_CLIENT_ID</code> i miljön först.
+      </p>
+    {% endif %}
+
+    <p id="loginStatus" class="admin-login-status" hidden></p>
+    <p class="admin-login-backlink"><a href="{{ url_for('index') }}">Tillbaka till webbplatsen</a></p>
+  </main>
+
+  {% if google_client_id %}
+    <script>
+      window.adminLoginConfig = {
+        clientId: {{ google_client_id | tojson }},
+        loginUrl: {{ url_for('admin_google_login') | tojson }}
+      };
+    </script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="{{ url_for('static', filename='admin-login.js') }}"></script>
+  {% endif %}
+</body>
+</html>

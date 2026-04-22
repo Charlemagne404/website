@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="{{ content.site.meta_description }}" />
+  <meta name="theme-color" content="{{ content.site.theme_color }}" />
+  <title>{{ content.site.page_title }} | {{ content.site.site_name }}</title>
+
+  <link rel="icon" href="{{ url_for('favicon') }}" type="image/x-icon" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+</head>
+<body>
+  <a class="skip-link" href="#mainContent">Hoppa till innehåll</a>
+
+  <header class="mobile-header" aria-label="Mobil navigering">
+    <button
+      id="openMenuButton"
+      class="icon-button"
+      type="button"
+      aria-controls="sidebar"
+      aria-expanded="false"
+      aria-label="Öppna meny">
+      <img src="{{ url_for('static', filename='svg/menu.svg') }}" alt="" />
+      <span>Meny</span>
+    </button>
+
+    <strong class="mobile-title" data-default-title="{{ content.site.mobile_default_title }}">
+      {{ content.site.mobile_default_title }}
+    </strong>
+  </header>
+
+  <div id="mobileBackdrop" class="mobile-backdrop" hidden></div>
+
+  <main class="layout">
+    <aside id="sidebar" class="sidebar" aria-label="Huvudmeny">
+      <div class="sidebar-inner">
+        <h1 class="site-title">
+          <a href="{{ url_for('index') }}">{{ content.site.site_name }}</a>
+        </h1>
+
+        <section class="sidebar-card sidebar-card-primary" aria-labelledby="sidebar-start-heading">
+          <p class="sidebar-kicker">{{ content.sidebar.start_card.kicker }}</p>
+          <h2 id="sidebar-start-heading">{{ content.sidebar.start_card.title }}</h2>
+          <p>{{ content.sidebar.start_card.text }}</p>
+          <a class="button-link button-link-primary" href="{{ content.sidebar.start_card.button_href }}">
+            {{ content.sidebar.start_card.button_label }}
+          </a>
+        </section>
+
+        <section class="sidebar-card" aria-labelledby="sidebar-facts-heading">
+          <p class="sidebar-kicker">{{ content.sidebar.facts_card.kicker }}</p>
+          <h2 id="sidebar-facts-heading">{{ content.sidebar.facts_card.title }}</h2>
+          <ul class="sidebar-meta-list">
+            {% for item in content.sidebar.facts_card['items'] %}
+              <li>{{ item }}</li>
+            {% endfor %}
+          </ul>
+        </section>
+
+        <div class="menu-search">
+          <label class="sr-only" for="menuSearchInput">Sök i menyn</label>
+          <input
+            id="menuSearchInput"
+            type="text"
+            placeholder="Sök"
+            maxlength="64"
+            autocomplete="off"
+          />
+        </div>
+
+        <nav class="menu-nav" aria-label="Sektioner">
+          <p class="panel-label">Navigering</p>
+          <ul>
+            {% for group in content.sidebar.navigation_groups %}
+              <li class="menu-group">
+                <span>{{ group.label }}</span>
+                <ul>
+                  {% for item in group['items'] %}
+                    <li><a data-search-item href="{{ item.href }}">{{ item.label }}</a></li>
+                  {% endfor %}
+                </ul>
+              </li>
+            {% endfor %}
+          </ul>
+        </nav>
+
+        <p id="menuSearchEmpty" class="menu-search-empty" hidden>Inga sektioner matchar din sökning.</p>
+      </div>
+    </aside>
+
+    <article class="content markdown" id="mainContent" tabindex="-1">
+      <section class="hero" aria-labelledby="valkommen-till-tullinge-gymnasium-datorklubb">
+        <div class="hero-layout">
+          <div class="hero-mark">
+            <img
+              class="hero-logo"
+              src="{{ url_for('favicon') }}"
+              alt="{{ content.site.site_name }} logotyp" />
+          </div>
+          <div class="hero-copy">
+            <p class="eyebrow">{{ content.site.eyebrow }}</p>
+            <h1 id="valkommen-till-tullinge-gymnasium-datorklubb">{{ content.hero.title }}</h1>
+
+            <p class="lead">{{ content.hero.lead }}</p>
+
+            <div class="hero-actions">
+              {% for action in content.hero.actions %}
+                <a
+                  class="button-link{% if action.primary %} button-link-primary{% endif %}"
+                  href="{{ action.href }}">
+                  {{ action.label }}
+                </a>
+              {% endfor %}
+            </div>
+
+            <ul class="hero-highlights" aria-label="Snabbfakta">
+              {% for highlight in content.hero.highlights %}
+                <li>{{ highlight }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {% for paragraph in content.intro.paragraphs %}
+        <p>{{ paragraph }}</p>
+      {% endfor %}
+
+      {% if content.intro.link.url %}
+        <p>
+          <a href="{{ content.intro.link.url }}" target="_blank" rel="noopener">
+            {{ content.intro.link.label }}
+          </a>
+        </p>
+      {% endif %}
+
+      <section class="quick-links" aria-labelledby="snabbstart">
+        <h2 id="snabbstart">{{ content.quick_links.title }}</h2>
+        <div class="info-grid">
+          {% for card in content.quick_links.cards %}
+            <a class="info-card" href="{{ card.href }}">
+              <span class="info-card-kicker">{{ card.kicker }}</span>
+              <strong>{{ card.title }}</strong>
+              <span>{{ card.text }}</span>
+            </a>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="content-section" aria-labelledby="datorklubben">
+        <div class="section-header">
+          <h2 id="datorklubben">{{ content.club.title }}</h2>
+          <p class="section-lead">{{ content.club.lead }}</p>
+        </div>
+
+        <div class="feature-grid">
+          {% for card in content.club.feature_cards %}
+            <a class="feature-card" href="{{ card.href }}">
+              <span class="feature-card-kicker">{{ card.kicker }}</span>
+              <strong>{{ card.title }}</strong>
+              <span>{{ card.text }}</span>
+            </a>
+          {% endfor %}
+        </div>
+
+        <h3 id="lan">{{ content.club.lan.title }}</h3>
+        {% for paragraph in content.club.lan.paragraphs %}
+          <p>{{ paragraph }}</p>
+        {% endfor %}
+
+        <h3 id="programmering">{{ content.club.programming.title }}</h3>
+        <p>
+          <a href="{{ content.club.programming.org_link_url }}" target="_blank" rel="noopener">
+            {{ content.club.programming.org_link_label }}
+          </a>.
+        </p>
+
+        <h4 id="egenutvecklade-system">{{ content.club.programming.systems_title }}</h4>
+        <ul>
+          {% for system in content.club.programming.systems %}
+            <li>
+              <a href="{{ system.repo_url }}" target="_blank" rel="noopener">{{ system.repo_label }}</a>
+              - {{ system.description }}
+              <a href="{{ system.site_url }}" target="_blank" rel="noopener">{{ system.site_label }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+
+        <h3 id="minecraft">{{ content.club.minecraft.title }}</h3>
+        {% if content.club.minecraft.paragraphs %}
+          <p>{{ content.club.minecraft.paragraphs[0] }}</p>
+        {% endif %}
+
+        <p class="action-row">
+          {% for action in content.club.minecraft.actions %}
+            {% if action.href.startswith('http') %}
+              <a class="button-link" href="{{ action.href }}" target="_blank" rel="noopener">
+                {{ action.label }}
+              </a>
+            {% else %}
+              <a class="button-link" href="{{ action.href }}">{{ action.label }}</a>
+            {% endif %}
+          {% endfor %}
+        </p>
+
+        {% for paragraph in content.club.minecraft.paragraphs[1:] %}
+          <p>{{ paragraph }}</p>
+        {% endfor %}
+
+        <div class="callout">
+          <strong>{{ content.club.minecraft.server_address_label }}</strong>
+          <p>{{ content.club.minecraft.server_address_intro }}</p>
+        </div>
+        <pre><code>{{ content.club.minecraft.server_address }}</code></pre>
+
+        <h4 id="videor">{{ content.club.minecraft.videos_title }}</h4>
+        {% for video in content.club.minecraft.videos %}
+          <iframe
+            src="{{ video.embed_url }}"
+            title="{{ video.title }}"
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen>
+          </iframe>
+        {% endfor %}
+      </section>
+
+      <section class="content-section" aria-labelledby="foreningen">
+        <div class="section-header">
+          <h2 id="foreningen">{{ content.association.title }}</h2>
+          <p class="section-lead">{{ content.association.lead }}</p>
+        </div>
+
+        <div class="feature-grid feature-grid-compact">
+          {% for card in content.association.feature_cards %}
+            <a class="feature-card" href="{{ card.href }}">
+              <span class="feature-card-kicker">{{ card.kicker }}</span>
+              <strong>{{ card.title }}</strong>
+              <span>{{ card.text }}</span>
+            </a>
+          {% endfor %}
+        </div>
+
+        <h3 id="bli-medlem">{{ content.association.membership.title }}</h3>
+        <p>
+          {{ content.association.membership.link_intro }}
+          <a href="{{ content.association.membership.link_url }}" target="_blank" rel="noopener">
+            {{ content.association.membership.link_label }}
+          </a>
+          {{ content.association.membership.link_outro }}
+        </p>
+        <p class="action-row">
+          <a class="button-link" href="{{ content.association.membership.button_url }}" target="_blank" rel="noopener">
+            {{ content.association.membership.button_label }}
+          </a>
+        </p>
+
+        <h3 id="styrelsen">{{ content.association.board.title }}</h3>
+        <p>{{ content.association.board.intro }}</p>
+        <ul>
+          {% for member in content.association.board.members %}
+            <li>
+              {{ member.name }}{% if member.details %}, {{ member.details }}{% endif %} -
+              <em>{{ member.role }}</em>
+            </li>
+          {% endfor %}
+        </ul>
+
+        <h3 id="dokument">{{ content.association.documents.title }}</h3>
+        <p>{{ content.association.documents.intro }}</p>
+        <p>
+          <a href="{{ content.association.documents.current_document_url }}" target="_blank" rel="noopener">
+            {{ content.association.documents.current_document_label }}
+          </a>.
+        </p>
+
+        {% for year in content.association.documents.years %}
+          <h4 id="dokument-{{ year.year }}">{{ year.year }}</h4>
+          <ul>
+            {% for event in year.events %}
+              <li>
+                {{ event.date_label }}: {{ event.title }}
+                <ul>
+                  {% for item in event['items'] %}
+                    <li>
+                      {% if item.url %}
+                        <a href="{{ item.url }}" target="_blank" rel="noopener">{{ item.label }}</a>
+                      {% else %}
+                        {{ item.label }}
+                      {% endif %}
+                    </li>
+                  {% endfor %}
+                </ul>
+              </li>
+            {% endfor %}
+          </ul>
+        {% endfor %}
+
+        <h3 id="kontakta-oss">{{ content.association.contact.title }}</h3>
+        <div class="contact-card">
+          <p>{{ content.association.contact.discord_text }}</p>
+
+          <p>{{ content.association.contact.website_contact_text }}</p>
+
+          <p>
+            {% for line in content.association.contact.address_lines %}
+              {{ line }}<br />
+            {% endfor %}
+          </p>
+
+          <p>
+            Organisationsnummer: {{ content.association.contact.organization_number }}<br />
+            <a href="mailto:{{ content.association.contact.email }}">{{ content.association.contact.email }}</a>
+          </p>
+        </div>
+      </section>
+
+      <footer class="page-footer">
+        <div class="footer-row">
+          {% if content.meta.updated_at %}
+            <span class="footer-link">
+              <img src="{{ url_for('static', filename='svg/calendar.svg') }}" alt="" />
+              <span>{{ format_public_timestamp(content.meta.updated_at) }}</span>
+            </span>
+          {% endif %}
+
+          <a class="footer-link" href="{{ url_for('admin') }}">
+            <img src="{{ url_for('static', filename='svg/edit.svg') }}" alt="" />
+            <span>{{ content.footer.edit_link_label }}</span>
+          </a>
+        </div>
+
+        {% if content.meta.updated_at %}
+          <p class="footer-meta">
+            Senast modifierad {{ format_public_timestamp(content.meta.updated_at) }}
+            {% if content.meta.updated_by_name %}
+              av {{ content.meta.updated_by_name }}
+            {% endif %}
+          </p>
+        {% endif %}
+        <p class="footer-meta">
+          {{ content.footer.credit_label }}
+          <a href="{{ content.footer.credit_url }}" target="_blank" rel="noopener">{{ content.footer.credit_name }}</a>
+        </p>
+        {% if content.footer.note %}
+          <p class="footer-meta"><i>{{ content.footer.note }}</i></p>
+        {% endif %}
+      </footer>
+    </article>
+  </main>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
