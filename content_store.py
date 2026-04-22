@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
+from content_validation import validate_email_address
 from default_content import get_default_site_content
 
 
@@ -26,6 +27,12 @@ def _read_json(path, fallback):
         return deepcopy(fallback)
 
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _append_json_line(path, payload):
+    _ensure_parent(path)
+    with Path(path).open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(payload, ensure_ascii=False) + "\n")
 
 
 def _merge_content(defaults, overrides):
@@ -170,6 +177,10 @@ def restore_site_content(
     return restored
 
 
+def append_audit_event(audit_path, event):
+    _append_json_line(Path(audit_path), event)
+
+
 def get_admin_emails(admins_path, seeded_emails=None):
     admins_path = Path(admins_path)
     seeded_emails = seeded_emails or []
@@ -192,9 +203,7 @@ def get_admin_emails(admins_path, seeded_emails=None):
 
 
 def add_admin_email(admins_path, email):
-    normalized_email = normalize_email(email)
-    if not normalized_email:
-        raise ValueError("Missing admin email")
+    normalized_email = normalize_email(validate_email_address(email, "admin email"))
 
     admins = set(get_admin_emails(admins_path))
     admins.add(normalized_email)

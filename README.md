@@ -7,9 +7,15 @@ Website with a public page and a separate admin interface for editing content wi
 - The public site now renders from structured content instead of hardcoded HTML.
 - The admin interface lives at `/admin`.
 - Admin access is restricted to approved Google accounts.
+- The public site now exposes `robots.txt`, `sitemap.xml`, and `site.webmanifest`.
+- The homepage includes canonical, Open Graph, Twitter, and JSON-LD metadata for search and link previews.
+- The app renders branded error pages instead of default Flask error screens.
+- Admin mutations are rate-limited and written to an append-only audit log.
+- Requests now emit `X-Request-ID` headers and structured application logs.
 - Site content is stored on disk in `data/site-content.json`.
 - Admin accounts are stored on disk in `data/admins.json`.
 - Every save creates an automatic restore point in `data/backups/`.
+- GitHub Actions now run both Python tests and Playwright browser/accessibility checks.
 
 ## Local Setup
 
@@ -18,6 +24,13 @@ Create a virtual environment and install dependencies:
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
+```
+
+Install browser test dependencies when you want to run the end-to-end checks locally:
+
+```bash
+npm install
+npx playwright install chromium
 ```
 
 Required environment variables:
@@ -29,11 +42,20 @@ Required environment variables:
 Optional environment variables:
 
 - `GOOGLE_HOSTED_DOMAIN` - restrict admin login to one Google Workspace domain
+- `SITE_URL` - public origin used for canonical URLs, sitemap entries, and social metadata
+- `SOCIAL_IMAGE_URL` - absolute image URL for social previews; defaults to the bundled share card
+- `SITE_TWITTER_HANDLE` - optional `@handle` for Twitter card metadata
 - `SESSION_COOKIE_SECURE=1` - enable secure cookies in production
 - `BACKUP_KEEP_COUNT` - how many previous content versions to keep, default `25`
+- `ADMIN_SESSION_HOURS` - admin session lifetime, default `12`
+- `AUTH_RATE_LIMIT_WINDOW_SECONDS` / `AUTH_RATE_LIMIT_MAX_ATTEMPTS` - login throttling
+- `ADMIN_MUTATION_RATE_LIMIT_WINDOW_SECONDS` / `ADMIN_MUTATION_RATE_LIMIT_MAX_REQUESTS` - admin write throttling
+- `LOG_LEVEL` - application log level, default `INFO`
 - `APP_ENV=production` - turn on production safety checks
 - `TRUSTED_HOSTS` - comma-separated allowed hostnames, recommended in production
 - `TRUST_PROXY_HEADERS=1` - trust `X-Forwarded-*` headers only when running behind your own reverse proxy
+
+Copy [.env.example](.env.example) to start from a production-oriented set of variables.
 
 ## Run Locally
 
@@ -65,12 +87,20 @@ APP_ENV=production \
 SECRET_KEY=replace-this-with-a-long-random-secret \
 INITIAL_ADMIN_EMAILS=admin@example.com \
 GOOGLE_CLIENT_ID=your-google-client-id \
+SITE_URL=https://example.com \
 TRUSTED_HOSTS=example.com,www.example.com \
 SESSION_COOKIE_SECURE=1 \
 .venv/bin/gunicorn --bind 0.0.0.0:5000 app:app
 ```
 
 If your hosting platform terminates TLS before the Flask app, enable `TRUST_PROXY_HEADERS=1` only when those proxy headers come from infrastructure you control.
+
+Containerized deployment is also supported:
+
+```bash
+docker build -t tgdk-website .
+docker run --rm -p 5000:5000 --env-file .env tgdk-website
+```
 
 ## Google Setup
 
@@ -92,13 +122,16 @@ The backend verifies the Google ID token and then checks that the email is in th
 - Uploaded PDFs stay on disk in the website project and keep working through `/documents/...`.
 - A simple health endpoint is available at `/healthz` for hosting checks.
 - Admin and auth responses are sent with `Cache-Control: no-store` to avoid stale sensitive pages.
-- The app adds baseline security headers such as `Referrer-Policy`, `X-Content-Type-Options`, and `X-Frame-Options`.
+- The app adds baseline security headers such as `Referrer-Policy`, `X-Content-Type-Options`, `X-Frame-Options`, and `Content-Security-Policy`.
+- Admin and API responses are marked `noindex`, and public pages expose canonical/share metadata for crawlers.
+- Successful admin changes are written to `data/admin-audit.jsonl`.
 
 ## Content and Uploads
 
 - `data/site-content.json` is created automatically on first start.
 - `data/admins.json` is created automatically on first start.
 - `data/backups/` is created automatically and stores restore points.
+- `data/admin-audit.jsonl` is created automatically once admin actions occur.
 - Uploaded PDFs are stored in `static/documents/<year>/`.
 - Existing legacy document URLs continue to work through the Flask app.
 
@@ -120,6 +153,7 @@ Run the automated checks with:
 
 ```bash
 .venv/bin/python -m unittest discover -s tests -v
+npm run test:e2e
 ```
 
 ## License

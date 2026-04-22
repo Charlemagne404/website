@@ -27,6 +27,13 @@
     saveStatus.classList.toggle("is-error", isError);
   }
 
+  function withCsrfHeaders(headers = {}) {
+    return {
+      ...headers,
+      "X-CSRF-Token": config.csrfToken,
+    };
+  }
+
   function createFromTemplate(templateId) {
     const template = document.getElementById(templateId);
     return template.content.firstElementChild.cloneNode(true);
@@ -341,9 +348,9 @@
       try {
         const request = await fetch(config.adminsUrl, {
           method: "DELETE",
-          headers: {
+          headers: withCsrfHeaders({
             "Content-Type": "application/json",
-          },
+          }),
           credentials: "same-origin",
           body: JSON.stringify({ email }),
         });
@@ -387,9 +394,9 @@
         showStatus("Återställer tidigare version...");
         const request = await fetch(config.restoreHistoryUrl, {
           method: "POST",
-          headers: {
+          headers: withCsrfHeaders({
             "Content-Type": "application/json",
-          },
+          }),
           credentials: "same-origin",
           body: JSON.stringify({ backup_id: item.id }),
         });
@@ -655,6 +662,7 @@
 
       const request = await fetch(config.uploadUrl, {
         method: "POST",
+        headers: withCsrfHeaders(),
         credentials: "same-origin",
         body: formData,
       });
@@ -683,9 +691,9 @@
 
       const request = await fetch(config.saveUrl, {
         method: "PUT",
-        headers: {
+        headers: withCsrfHeaders({
           "Content-Type": "application/json",
-        },
+        }),
         credentials: "same-origin",
         body: JSON.stringify(collectContent()),
       });
@@ -755,9 +763,9 @@
     try {
       const request = await fetch(config.adminsUrl, {
         method: "POST",
-        headers: {
+        headers: withCsrfHeaders({
           "Content-Type": "application/json",
-        },
+        }),
         credentials: "same-origin",
         body: JSON.stringify({ email }),
       });

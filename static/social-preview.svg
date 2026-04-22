@@ -1,0 +1,17 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#F3F7FB"/>
+  <rect x="48" y="48" width="1104" height="534" rx="36" fill="url(#card)"/>
+  <circle cx="1012" cy="126" r="140" fill="#D9E8FB" fill-opacity="0.72"/>
+  <circle cx="952" cy="508" r="112" fill="#C7DCF8" fill-opacity="0.64"/>
+  <rect x="112" y="120" width="200" height="200" rx="32" fill="#0B63CE"/>
+  <path d="M173 184H251V210H205V230H246V256H205V294H173V184Z" fill="white"/>
+  <text x="112" y="390" fill="#0E1726" font-family="Roboto, Helvetica, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="2">TULLINGE GYMNASIUM DATORKLUBB</text>
+  <text x="112" y="466" fill="#0E1726" font-family="Roboto, Helvetica, Arial, sans-serif" font-size="68" font-weight="700">Spel, programmering</text>
+  <text x="112" y="540" fill="#0E1726" font-family="Roboto, Helvetica, Arial, sans-serif" font-size="68" font-weight="700">och elevdrivna projekt</text>
+  <defs>
+    <linearGradient id="card" x1="48" y1="48" x2="1152" y2="582" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#E8F0FB"/>
+    </linearGradient>
+  </defs>
+</svg>

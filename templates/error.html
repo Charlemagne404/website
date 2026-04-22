@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>{{ title }} | {{ site_name }}</title>
+  <link rel="icon" href="{{ url_for('favicon') }}" type="image/x-icon" />
+  <link rel="stylesheet" href="{{ asset_url('styles.css') }}" />
+</head>
+<body class="error-page-body">
+  <main class="error-shell">
+    <section class="error-card" aria-labelledby="errorHeading">
+      <p class="error-code">{{ status_code }}</p>
+      <h1 id="errorHeading">{{ heading }}</h1>
+      <p class="error-message">{{ message }}</p>
+      <div class="error-actions">
+        <a class="button-link button-link-primary" href="{{ url_for('index') }}">Till startsidan</a>
+        <a class="button-link" href="{{ url_for('admin_login') }}">Admin</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

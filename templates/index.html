@@ -3,12 +3,49 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="{{ content.site.meta_description }}" />
+  <meta name="description" content="{{ seo.description }}" />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
   <meta name="theme-color" content="{{ content.site.theme_color }}" />
-  <title>{{ content.site.page_title }} | {{ content.site.site_name }}</title>
+  <title>{{ seo.page_title }}</title>
+
+  <link rel="canonical" href="{{ seo.canonical_url }}" />
+  <link rel="manifest" href="{{ url_for('site_manifest') }}" />
 
   <link rel="icon" href="{{ url_for('favicon') }}" type="image/x-icon" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="{{ content.site.site_name }}" />
+  <meta property="og:locale" content="{{ seo.locale }}" />
+  <meta property="og:title" content="{{ seo.page_title }}" />
+  <meta property="og:description" content="{{ seo.description }}" />
+  <meta property="og:url" content="{{ seo.canonical_url }}" />
+  <meta property="og:image" content="{{ seo.social_image_url }}" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="{{ seo.social_image_alt }}" />
+  <meta name="twitter:card" content="{{ seo.twitter_card }}" />
+  <meta name="twitter:title" content="{{ seo.page_title }}" />
+  <meta name="twitter:description" content="{{ seo.description }}" />
+  <meta name="twitter:image" content="{{ seo.social_image_url }}" />
+  <meta name="twitter:image:alt" content="{{ seo.social_image_alt }}" />
+  {% if seo.twitter_handle %}
+    <meta name="twitter:site" content="{{ seo.twitter_handle }}" />
+  {% endif %}
+  <link
+    rel="preload"
+    href="{{ asset_url('fonts/roboto-v27-latin-regular.woff2') }}"
+    as="font"
+    type="font/woff2"
+    crossorigin />
+  <link
+    rel="preload"
+    href="{{ asset_url('fonts/roboto-v27-latin-700.woff2') }}"
+    as="font"
+    type="font/woff2"
+    crossorigin />
+  <link rel="stylesheet" href="{{ asset_url('styles.css') }}" />
+  <script nonce="{{ csp_nonce }}" type="application/ld+json">
+    {{ seo.structured_data | tojson(indent=2) }}
+  </script>
 </head>
 <body>
   <a class="skip-link" href="#mainContent">Hoppa till innehåll</a>
@@ -21,7 +58,7 @@
       aria-controls="sidebar"
       aria-expanded="false"
       aria-label="Öppna meny">
-      <img src="{{ url_for('static', filename='svg/menu.svg') }}" alt="" />
+      <img src="{{ asset_url('svg/menu.svg') }}" alt="" />
       <span>Meny</span>
     </button>
 
@@ -216,13 +253,16 @@
 
         <h4 id="videor">{{ content.club.minecraft.videos_title }}</h4>
         {% for video in content.club.minecraft.videos %}
-          <iframe
-            src="{{ video.embed_url }}"
-            title="{{ video.title }}"
-            loading="lazy"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen>
-          </iframe>
+          <div class="video-frame">
+            <iframe
+              src="{{ video.embed_url }}"
+              title="{{ video.title }}"
+              loading="lazy"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+            </iframe>
+          </div>
         {% endfor %}
       </section>
 
@@ -320,13 +360,13 @@
         <div class="footer-row">
           {% if content.meta.updated_at %}
             <span class="footer-link">
-              <img src="{{ url_for('static', filename='svg/calendar.svg') }}" alt="" />
+              <img src="{{ asset_url('svg/calendar.svg') }}" alt="" />
               <span>{{ format_public_timestamp(content.meta.updated_at) }}</span>
             </span>
           {% endif %}
 
           <a class="footer-link" href="{{ url_for('admin') }}">
-            <img src="{{ url_for('static', filename='svg/edit.svg') }}" alt="" />
+            <img src="{{ asset_url('svg/edit.svg') }}" alt="" />
             <span>{{ content.footer.edit_link_label }}</span>
           </a>
         </div>
@@ -350,6 +390,6 @@
     </article>
   </main>
 
-  <script src="{{ url_for('static', filename='script.js') }}"></script>
+  <script src="{{ asset_url('script.js') }}" defer></script>
 </body>
 </html>

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin | Tullinge gymnasium datorklubb</title>
   <link rel="icon" href="{{ url_for('favicon') }}" type="image/x-icon" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}" />
+  <link rel="stylesheet" href="{{ asset_url('admin.css') }}" />
 </head>
 <body class="admin-shell admin-login-shell">
   <main class="admin-login-card">
@@ -34,14 +34,15 @@
   </main>
 
   {% if google_client_id %}
-    <script>
+    <script nonce="{{ csp_nonce }}">
       window.adminLoginConfig = {
         clientId: {{ google_client_id | tojson }},
-        loginUrl: {{ url_for('admin_google_login') | tojson }}
+        loginUrl: {{ url_for('admin_google_login') | tojson }},
+        csrfToken: {{ csrf_token | tojson }}
       };
     </script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="{{ url_for('static', filename='admin-login.js') }}"></script>
+    <script nonce="{{ csp_nonce }}" src="{{ asset_url('admin-login.js') }}"></script>
   {% endif %}
 </body>
 </html>

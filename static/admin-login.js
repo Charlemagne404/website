@@ -21,6 +21,7 @@
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-CSRF-Token": config.csrfToken,
         },
         credentials: "same-origin",
         body: JSON.stringify({
