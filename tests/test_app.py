@@ -80,13 +80,22 @@ class WebsiteAdminTests(unittest.TestCase):
         html = response.get_data(as_text=True)
 
         self.assertEqual(response.status_code, 200)
+        self.assertIn('<html lang="sv-SE">', html)
         self.assertIn('<link rel="canonical" href="https://example.com/" />', html)
+        self.assertIn('<link rel="alternate" hreflang="sv-SE" href="https://example.com/" />', html)
         self.assertIn('property="og:title"', html)
-        self.assertIn('property="og:image" content="https://example.com/static/social-preview.svg"', html)
+        self.assertIn('property="og:image" content="https://example.com/static/social-preview.png"', html)
+        self.assertIn('property="og:image:type" content="image/png"', html)
         self.assertIn('name="twitter:card" content="summary_large_image"', html)
         self.assertIn('type="application/ld+json"', html)
         self.assertIn('"@context": "https://schema.org"', html)
-        self.assertIn('<link rel="manifest" href="/site.webmanifest" />', html)
+        self.assertIn('"@type": "CollectionPage"', html)
+        self.assertIn('<link rel="manifest" href="/manifest.json" />', html)
+        self.assertIn('<link rel="alternate" type="application/json" href="/data.json" />', html)
+        self.assertIn('name="description" content="Elevförening på Tullinge gymnasium med LAN, programmering, Minecraft och elevdrivna projekt."', html)
+        self.assertIn('<p class="site-title">', html)
+        self.assertIn('href="/privacy-policy.html"', html)
+        self.assertIn('href="/terms-of-service.html"', html)
 
     def test_public_homepage_does_not_create_session_cookie(self):
         response = self.client.get("/")
@@ -99,6 +108,8 @@ class WebsiteAdminTests(unittest.TestCase):
         robots_response = self.client.get("/robots.txt")
         sitemap_response = self.client.get("/sitemap.xml")
         manifest_response = self.client.get("/site.webmanifest")
+        manifest_json_response = self.client.get("/manifest.json")
+        data_response = self.client.get("/data.json")
 
         self.assertEqual(robots_response.status_code, 200)
         self.assertIn("text/plain", robots_response.content_type)
@@ -112,6 +123,25 @@ class WebsiteAdminTests(unittest.TestCase):
         self.assertEqual(manifest_response.status_code, 200)
         self.assertEqual(manifest_response.content_type, "application/manifest+json")
         self.assertEqual(manifest_response.get_json()["start_url"], "/")
+        self.assertEqual(
+            manifest_response.get_json()["description"],
+            "Elevförening på Tullinge gymnasium med LAN, programmering, Minecraft och elevdrivna projekt.",
+        )
+        self.assertEqual(manifest_json_response.status_code, 200)
+        self.assertEqual(manifest_json_response.content_type, "application/manifest+json")
+        self.assertEqual(manifest_json_response.get_json(), manifest_response.get_json())
+        self.assertEqual(data_response.status_code, 200)
+        self.assertEqual(data_response.get_json()["@context"], "https://schema.org")
+        self.assertIn("@graph", data_response.get_json())
+
+    def test_legal_pages_exist(self):
+        privacy_response = self.client.get("/privacy-policy.html")
+        terms_response = self.client.get("/terms-of-service.html")
+
+        self.assertEqual(privacy_response.status_code, 200)
+        self.assertEqual(terms_response.status_code, 200)
+        self.assertIn("Integritetspolicy", privacy_response.get_data(as_text=True))
+        self.assertIn("Användarvillkor", terms_response.get_data(as_text=True))
 
     def test_admin_login_and_content_save_flow(self):
         self.login()
@@ -328,13 +358,19 @@ class WebsiteAdminTests(unittest.TestCase):
     def test_fonts_and_public_files_get_public_cache_headers(self):
         font_response = self.client.get("/static/fonts/roboto-v27-latin-regular.woff2")
         favicon_response = self.client.get("/favicon.png")
+        manifest_response = self.client.get("/manifest.json")
+        data_response = self.client.get("/data.json")
 
         self.assertEqual(font_response.status_code, 200)
         self.assertEqual(favicon_response.status_code, 200)
         self.assertEqual(font_response.headers["Cache-Control"], "public, max-age=31536000, immutable")
         self.assertEqual(favicon_response.headers["Cache-Control"], "public, max-age=3600")
+        self.assertEqual(manifest_response.headers["Cache-Control"], "public, max-age=3600")
+        self.assertEqual(data_response.headers["Cache-Control"], "public, max-age=3600")
         font_response.close()
         favicon_response.close()
+        manifest_response.close()
+        data_response.close()
 
     def test_public_and_admin_responses_include_request_ids(self):
         homepage_response = self.client.get("/", headers={"X-Request-ID": "public-request-123"})
@@ -354,12 +390,24 @@ class WebsiteAdminTests(unittest.TestCase):
         self.assertIn("default-src 'self'", response.headers["Content-Security-Policy"])
         self.assertTrue(response.headers["X-Request-ID"])
 
+    def test_https_responses_include_hsts(self):
+        response = self.client.get("/", base_url="https://example.com")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers["Strict-Transport-Security"], "max-age=31536000; includeSubDomains")
+
     def test_public_404_page_is_branded(self):
         response = self.client.get("/missing-page")
 
         self.assertEqual(response.status_code, 404)
         self.assertIn("Sidan finns inte", response.get_data(as_text=True))
         self.assertIn("Till startsidan", response.get_data(as_text=True))
+
+    def test_favicon_ico_redirects_to_png(self):
+        response = self.client.get("/favicon.ico")
+
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response.headers["Location"], "/favicon.png")
 
     def test_public_500_page_is_branded(self):
         app = create_app(

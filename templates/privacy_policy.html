@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="{{ seo.language }}">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Integritetspolicy för {{ content.site.site_name }}." />
+  <meta name="robots" content="index,follow" />
+  <title>Integritetspolicy | {{ content.site.site_name }}</title>
+  <link rel="canonical" href="{{ request.base_url }}" />
+  <link rel="manifest" href="{{ url_for('site_manifest_json') }}" />
+  <link rel="icon" href="{{ url_for('favicon') }}" type="image/png" />
+  <link rel="stylesheet" href="{{ asset_url('styles.css') }}" />
+</head>
+<body>
+  <a class="skip-link" href="#mainContent">Hoppa till innehåll</a>
+  <main id="mainContent" class="legal-shell">
+    <article class="legal-page">
+      <p class="eyebrow">Juridisk information</p>
+      <h1>Integritetspolicy</h1>
+      <p>
+        Denna webbplats drivs av {{ content.site.site_name }}. Vi samlar i normalfallet inte in personuppgifter från
+        vanliga besökare utöver tekniska uppgifter som behövs för drift, felsökning och säkerhet.
+      </p>
+
+      <h2>Vilka uppgifter som kan behandlas</h2>
+      <p>
+        Servern kan tillfälligt behandla IP-adress, begärda webbadresser, tidpunkt, användaragent och tekniska
+        säkerhetsuppgifter som förfrågnings-id:n. Dessa används för drift, felsökning, missbruksförebyggande arbete
+        och säkerhetsloggning.
+      </p>
+
+      <h2>Administratörsinloggning</h2>
+      <p>
+        Om du loggar in som administratör behandlas din Google-identitet, e-postadress och relevanta revisionsloggar
+        för att kunna skydda administrationsgränssnittet och spåra ändringar på webbplatsen.
+      </p>
+
+      <h2>Lagring</h2>
+      <p>
+        Administrativa ändringar, återställningspunkter och uppladdade dokument lagras på webbplatsens server eller i
+        tillhörande driftmiljö så länge det krävs för drift, säkerhet och historik.
+      </p>
+
+      <h2>Tredjepartstjänster</h2>
+      <p>
+        Webbplatsen kan ladda innehåll eller tjänster från tredje part, till exempel Google för administratörsinloggning
+        och YouTube för inbäddade videor. Sådana tjänster behandlar uppgifter enligt sina egna villkor.
+      </p>
+
+      <h2>Kontakt</h2>
+      <p>
+        Frågor om integritet eller webbplatsens behandling av uppgifter kan skickas till
+        <a href="mailto:{{ content.association.contact.email }}">{{ content.association.contact.email }}</a>.
+      </p>
+
+      <p class="legal-actions">
+        <a class="button-link button-link-primary" href="{{ url_for('index') }}">Till startsidan</a>
+        <a class="button-link" href="{{ url_for('terms_of_service') }}">Läs användarvillkor</a>
+      </p>
+    </article>
+  </main>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="{{ seo.language }}">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Användarvillkor för {{ content.site.site_name }}." />
+  <meta name="robots" content="index,follow" />
+  <title>Användarvillkor | {{ content.site.site_name }}</title>
+  <link rel="canonical" href="{{ request.base_url }}" />
+  <link rel="manifest" href="{{ url_for('site_manifest_json') }}" />
+  <link rel="icon" href="{{ url_for('favicon') }}" type="image/png" />
+  <link rel="stylesheet" href="{{ asset_url('styles.css') }}" />
+</head>
+<body>
+  <a class="skip-link" href="#mainContent">Hoppa till innehåll</a>
+  <main id="mainContent" class="legal-shell">
+    <article class="legal-page">
+      <p class="eyebrow">Juridisk information</p>
+      <h1>Användarvillkor</h1>
+      <p>
+        Webbplatsen tillhandahålls för information om {{ content.site.site_name }}, dess aktiviteter, dokument och
+        kontaktvägar. Innehållet får användas för normalt informationsbruk så länge användningen är laglig och inte
+        skadar webbplatsen eller andra användare.
+      </p>
+
+      <h2>Tillåten användning</h2>
+      <p>
+        Du får inte försöka kringgå säkerhet, störa driften, ladda upp skadligt innehåll eller använda webbplatsen på
+        ett sätt som kan skada föreningen, dess medlemmar eller den tekniska plattformen.
+      </p>
+
+      <h2>Innehåll och dokument</h2>
+      <p>
+        Information, dokument och länkar publiceras i befintligt skick. Webbplatsen kan uppdateras, korrigeras eller
+        tas bort utan förvarning när innehållet förändras eller behöver rättas.
+      </p>
+
+      <h2>Administratörsansvar</h2>
+      <p>
+        Endast godkända administratörer får använda administrationsgränssnittet. Administrativa åtgärder kan loggas av
+        säkerhets- och spårbarhetsskäl.
+      </p>
+
+      <h2>Externa länkar</h2>
+      <p>
+        Webbplatsen kan länka till externa tjänster och resurser. {{ content.site.site_name }} ansvarar inte för
+        innehåll, tillgänglighet eller villkor på externa webbplatser.
+      </p>
+
+      <h2>Kontakt</h2>
+      <p>
+        Frågor om användningen av webbplatsen kan skickas till
+        <a href="mailto:{{ content.association.contact.email }}">{{ content.association.contact.email }}</a>.
+      </p>
+
+      <p class="legal-actions">
+        <a class="button-link button-link-primary" href="{{ url_for('index') }}">Till startsidan</a>
+        <a class="button-link" href="{{ url_for('privacy_policy') }}">Läs integritetspolicy</a>
+      </p>
+    </article>
+  </main>
+</body>
+</html>

@@ -35,11 +35,15 @@ from default_content import get_default_site_content
 
 BASE_DIR = Path(__file__).resolve().parent
 DOCUMENT_YEAR_PATTERN = re.compile(r"^\d{4}$")
+FOUNDING_YEAR_PATTERN = re.compile(r"\bgrundad\s+(?P<year>\d{4})\b", re.IGNORECASE)
+POSTAL_CITY_PATTERN = re.compile(r"^(?P<postal_code>\d{3}\s?\d{2})\s+(?P<city>.+)$")
+WHITESPACE_PATTERN = re.compile(r"\s+")
 CSRF_SESSION_KEY = "_csrf_token"
 CSRF_HEADER = "X-CSRF-Token"
 REQUEST_ID_HEADER = "X-Request-ID"
 REQUEST_ID_PATTERN = re.compile(r"^[A-Za-z0-9._-]{1,100}$")
-DEFAULT_SOCIAL_IMAGE = "social-preview.svg"
+DEFAULT_SOCIAL_IMAGE = "social-preview.png"
+GENERIC_PAGE_TITLES = {"home", "homepage", "introduktion", "startsida"}
 
 
 def parse_bool(value, default=False):
@@ -57,6 +61,36 @@ def path_from_env(value, default):
     if value in {None, ""}:
         return default
     return Path(value).expanduser()
+
+
+def collapse_whitespace(value):
+    return WHITESPACE_PATTERN.sub(" ", str(value or "")).strip()
+
+
+def normalized_text(value):
+    return collapse_whitespace(value).casefold()
+
+
+def truncate_text(value, max_length):
+    text = collapse_whitespace(value)
+    if len(text) <= max_length:
+        return text
+
+    cutoff = text[: max_length - 1].rsplit(" ", 1)[0].rstrip(" ,.;:-")
+    if not cutoff:
+        cutoff = text[: max_length - 1].rstrip()
+    return f"{cutoff}…"
+
+
+def social_image_mime_type(value):
+    suffix = Path(urlsplit(value).path).suffix.lower()
+    return {
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".png": "image/png",
+        ".svg": "image/svg+xml",
+        ".webp": "image/webp",
+    }.get(suffix, "image/png")
 
 
 def configure_logging(app):
@@ -216,45 +250,201 @@ def create_app(test_config=None):
         path = value if value.startswith("/") else f"/{value}"
         return f"{site_origin()}{path}"
 
+    def derived_page_title(content):
+        site_name = collapse_whitespace(content["site"].get("site_name"))
+        page_title = collapse_whitespace(content["site"].get("page_title"))
+        hero_title = collapse_whitespace(content["hero"].get("title"))
+
+        if not page_title or normalized_text(page_title) in GENERIC_PAGE_TITLES:
+            page_title = hero_title or site_name
+
+        if normalized_text(page_title) == normalized_text(site_name):
+            return site_name
+
+        return f"{page_title} | {site_name}" if page_title and site_name else page_title or site_name
+
+    def derived_meta_description(content):
+        site_name = collapse_whitespace(content["site"].get("site_name"))
+        configured_description = collapse_whitespace(content["site"].get("meta_description"))
+
+        if configured_description and normalized_text(configured_description) != normalized_text(site_name):
+            return truncate_text(configured_description, 160)
+
+        fallback_parts = [
+            content["site"].get("eyebrow"),
+            content["hero"].get("lead"),
+        ]
+        fallback_description = " ".join(collapse_whitespace(part) for part in fallback_parts if collapse_whitespace(part))
+
+        return truncate_text(fallback_description or site_name, 160)
+
+    def build_topics(content):
+        topic_names = [
+            content["club"]["lan"].get("title"),
+            content["club"]["programming"].get("title"),
+            content["club"]["minecraft"].get("title"),
+            content["association"]["membership"].get("title"),
+            content["association"]["documents"].get("title"),
+        ]
+
+        topics = []
+        seen = set()
+        for name in topic_names:
+            normalized_name = normalized_text(name)
+            if not normalized_name or normalized_name in seen:
+                continue
+            seen.add(normalized_name)
+            topics.append({"@type": "Thing", "name": collapse_whitespace(name)})
+
+        return topics
+
+    def build_same_as_urls(content):
+        urls = []
+        for candidate in [content["club"]["programming"].get("org_link_url")]:
+            if not candidate:
+                continue
+            absolute_candidate = absolute_url(candidate)
+            if absolute_candidate not in urls:
+                urls.append(absolute_candidate)
+        return urls
+
+    def build_postal_address(content):
+        lines = [
+            collapse_whitespace(line)
+            for line in content["association"]["contact"].get("address_lines", [])
+            if collapse_whitespace(line)
+        ]
+        if not lines:
+            return None
+
+        address = {
+            "@type": "PostalAddress",
+            "addressCountry": "SE",
+        }
+        if len(lines) > 1:
+            street_lines = lines[1:-1] or lines[:-1]
+            if street_lines:
+                address["streetAddress"] = ", ".join(street_lines)
+
+        city_match = POSTAL_CITY_PATTERN.fullmatch(lines[-1])
+        if city_match:
+            address["postalCode"] = city_match.group("postal_code")
+            address["addressLocality"] = city_match.group("city")
+        elif "streetAddress" in address:
+            address["streetAddress"] = f"{address['streetAddress']}, {lines[-1]}"
+        else:
+            address["streetAddress"] = lines[-1]
+
+        return address
+
+    def founding_year(content):
+        for item in content["sidebar"]["facts_card"].get("items", []):
+            match = FOUNDING_YEAR_PATTERN.search(str(item))
+            if match:
+                return match.group("year")
+        return ""
+
     def public_metadata(content):
-        site_name = content["site"]["site_name"].strip()
-        page_title = f"{content['site']['page_title']} | {site_name}"
-        description = content["site"]["meta_description"].strip()
+        site_name = collapse_whitespace(content["site"]["site_name"])
+        page_title = derived_page_title(content)
+        description = derived_meta_description(content)
+        canonical_url = absolute_url(url_for("index"))
         social_image = absolute_url(
             app.config.get("SOCIAL_IMAGE_URL") or url_for("static", filename=DEFAULT_SOCIAL_IMAGE)
         )
         locale = str(app.config.get("SITE_LOCALE", "sv_SE")).strip() or "sv_SE"
         language = locale.replace("_", "-")
         twitter_handle = str(app.config.get("SITE_TWITTER_HANDLE", "")).strip()
-        structured_data = [
-            {
-                "@context": "https://schema.org",
-                "@type": "WebSite",
-                "name": site_name,
-                "url": absolute_url(url_for("index")),
-                "description": description,
-                "inLanguage": language,
-            },
-            {
-                "@context": "https://schema.org",
-                "@type": "Organization",
-                "name": site_name,
-                "url": site_origin(),
-                "logo": absolute_url(url_for("favicon")),
-                "description": description,
-                "email": content["association"]["contact"]["email"],
-            },
-        ]
+        image_type = social_image_mime_type(social_image)
+        updated_at = content.get("meta", {}).get("updated_at", "")
+        organization_id = f"{canonical_url}#organization"
+        website_id = f"{canonical_url}#website"
+        webpage_id = f"{canonical_url}#webpage"
+        image_id = f"{canonical_url}#primaryimage"
+        topics = build_topics(content)
+
+        organization = {
+            "@type": "Organization",
+            "@id": organization_id,
+            "name": site_name,
+            "url": site_origin(),
+            "logo": absolute_url(url_for("favicon")),
+            "description": description,
+            "email": content["association"]["contact"]["email"],
+            "contactPoint": [
+                {
+                    "@type": "ContactPoint",
+                    "contactType": "general inquiries",
+                    "email": content["association"]["contact"]["email"],
+                    "availableLanguage": [language],
+                }
+            ],
+            "knowsAbout": topics,
+        }
+        postal_address = build_postal_address(content)
+        if postal_address:
+            organization["address"] = postal_address
+        year = founding_year(content)
+        if year:
+            organization["foundingDate"] = year
+        same_as_urls = build_same_as_urls(content)
+        if same_as_urls:
+            organization["sameAs"] = same_as_urls
+
+        webpage = {
+            "@type": "CollectionPage",
+            "@id": webpage_id,
+            "url": canonical_url,
+            "name": page_title,
+            "description": description,
+            "inLanguage": language,
+            "isPartOf": {"@id": website_id},
+            "primaryImageOfPage": {"@id": image_id},
+            "about": topics,
+            "publisher": {"@id": organization_id},
+        }
+        if updated_at:
+            webpage["dateModified"] = updated_at
+
+        structured_data = {
+            "@context": "https://schema.org",
+            "@graph": [
+                {
+                    "@type": "WebSite",
+                    "@id": website_id,
+                    "url": canonical_url,
+                    "name": site_name,
+                    "description": description,
+                    "inLanguage": language,
+                    "publisher": {"@id": organization_id},
+                },
+                {
+                    "@type": "ImageObject",
+                    "@id": image_id,
+                    "url": social_image,
+                    "contentUrl": social_image,
+                    "width": 1200,
+                    "height": 630,
+                    "caption": truncate_text(f"{site_name}: {description}", 110),
+                    "encodingFormat": image_type,
+                },
+                organization,
+                webpage,
+            ],
+        }
 
         return {
             "page_title": page_title,
             "description": description,
-            "canonical_url": absolute_url(url_for("index")),
+            "canonical_url": canonical_url,
             "social_image_url": social_image,
-            "social_image_alt": f"{site_name} social share card",
+            "social_image_alt": truncate_text(f"{site_name}: {description}", 110),
+            "social_image_type": image_type,
             "locale": locale,
+            "language": language,
             "twitter_card": "summary_large_image",
             "twitter_handle": twitter_handle,
+            "updated_at": updated_at,
             "structured_data": structured_data,
         }
 
@@ -275,6 +465,32 @@ def create_app(test_config=None):
             ),
             status_code,
         )
+
+    def manifest_payload(content):
+        seo = public_metadata(content)
+        return {
+            "name": content["site"]["site_name"],
+            "short_name": content["site"]["site_name"],
+            "lang": "sv",
+            "description": seo["description"],
+            "start_url": url_for("index"),
+            "scope": url_for("index"),
+            "display": "standalone",
+            "background_color": content["site"]["theme_color"],
+            "theme_color": content["site"]["theme_color"],
+            "icons": [
+                {
+                    "src": url_for("favicon"),
+                    "sizes": "512x512",
+                    "type": "image/png",
+                }
+            ],
+        }
+
+    def manifest_response():
+        response = jsonify(manifest_payload(public_content()))
+        response.mimetype = "application/manifest+json"
+        return response
 
     def build_sitemap_entries(content):
         entries = []
@@ -531,6 +747,8 @@ def create_app(test_config=None):
             ]
         )
         response.headers.setdefault("Content-Security-Policy", csp)
+        if request.is_secure:
+            response.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
 
         static_filename = str((request.view_args or {}).get("filename", ""))
         if request.endpoint == "static":
@@ -540,7 +758,16 @@ def create_app(test_config=None):
                 )
             else:
                 response.headers["Cache-Control"] = f"public, max-age={app.config['STATIC_DEFAULT_MAX_AGE']}"
-        elif request.endpoint in {"favicon", "document_file", "robots_txt", "sitemap", "site_manifest"}:
+        elif request.endpoint in {
+            "favicon",
+            "favicon_ico",
+            "document_file",
+            "robots_txt",
+            "sitemap",
+            "site_manifest",
+            "site_manifest_json",
+            "structured_data_json",
+        }:
             response.headers["Cache-Control"] = f"public, max-age={app.config['PUBLIC_FILE_MAX_AGE']}"
 
         if request.endpoint != "static":
@@ -604,6 +831,10 @@ def create_app(test_config=None):
     def favicon():
         return app.send_static_file("favicon.png")
 
+    @app.route("/favicon.ico")
+    def favicon_ico():
+        return redirect(url_for("favicon"), code=301)
+
     @app.get("/robots.txt")
     def robots_txt():
         lines = [
@@ -631,27 +862,15 @@ def create_app(test_config=None):
 
     @app.get("/site.webmanifest")
     def site_manifest():
-        content = public_content()
-        response = jsonify(
-            {
-                "name": content["site"]["site_name"],
-                "short_name": content["site"]["site_name"],
-                "lang": "sv",
-                "start_url": url_for("index"),
-                "display": "standalone",
-                "background_color": content["site"]["theme_color"],
-                "theme_color": content["site"]["theme_color"],
-                "icons": [
-                    {
-                        "src": url_for("favicon"),
-                        "sizes": "512x512",
-                        "type": "image/png",
-                    }
-                ],
-            }
-        )
-        response.mimetype = "application/manifest+json"
-        return response
+        return manifest_response()
+
+    @app.get("/manifest.json")
+    def site_manifest_json():
+        return manifest_response()
+
+    @app.get("/data.json")
+    def structured_data_json():
+        return jsonify(public_metadata(public_content())["structured_data"])
 
     @app.get("/healthz")
     def healthcheck():
@@ -682,6 +901,16 @@ def create_app(test_config=None):
             csrf_token=csrf_token(),
             public_url=url_for("index"),
         )
+
+    @app.get("/privacy-policy.html")
+    def privacy_policy():
+        content = public_content()
+        return render_template("privacy_policy.html", content=content, seo=public_metadata(content))
+
+    @app.get("/terms-of-service.html")
+    def terms_of_service():
+        content = public_content()
+        return render_template("terms_of_service.html", content=content, seo=public_metadata(content))
 
     @app.post("/admin/logout")
     @login_required

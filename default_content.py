@@ -4,9 +4,9 @@ from copy import deepcopy
 DEFAULT_SITE_CONTENT = {
     "site": {
         "site_name": "Tullinge gymnasium datorklubb",
-        "page_title": "Introduktion",
+        "page_title": "Spel, programmering och elevdrivna projekt",
         "mobile_default_title": "Introduktion",
-        "meta_description": "Tullinge gymnasium datorklubb",
+        "meta_description": "Elevförening på Tullinge gymnasium med LAN, programmering, Minecraft och elevdrivna projekt.",
         "theme_color": "#ffffff",
         "eyebrow": "Elevförening på Tullinge gymnasium",
     },
