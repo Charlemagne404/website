@@ -1,6 +1,7 @@
 {
   "name": "tgdk-website",
   "private": true,
+  "license": "Apache-2.0",
   "scripts": {
     "test:e2e": "playwright test"
   },

@@ -158,10 +158,10 @@ npm run test:e2e
 
 ## License
 
-Unless otherwise noted, the current source code for this rewritten website is licensed under the MIT License. See [LICENSE](LICENSE).
+Unless otherwise noted, the current source code for this rewritten website is licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
 
 That license applies to the software in this repository, including the Flask app, templates, and project-authored frontend code.
 
 It does not automatically apply to club documents, uploaded PDFs, fonts, logos, images, or other third-party or non-code assets that may be included in or used by the project. Those materials remain subject to their own copyright or license terms.
 
-Historical repository contents and prior revisions also remain subject to their respective copyrights.
+Historical repository contents and prior revisions also remain subject to their respective copyrights and license terms.
